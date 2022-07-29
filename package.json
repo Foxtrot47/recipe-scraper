@@ -1,0 +1,9 @@
+{
+  "name": "recipe-scraper",
+  "version": "1.0.0",
+  "description": "A simple recipe scraping tool",
+  "main": "index.js",
+  "author": "Foxtrot47",
+  "license": "MIT",
+  "private": false
+}
