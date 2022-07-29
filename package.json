@@ -5,5 +5,8 @@
   "main": "index.js",
   "author": "Foxtrot47",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "recipe-scraper": "^2.1.1"
+  }
 }
