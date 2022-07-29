@@ -11,40 +11,50 @@ const headers = {
 };
 
 import recipeScraper from "recipe-scraper";
+import fs from "fs";
 
-const getRecipeAr = async (pageNum) => {
+const getRecipeAr = async (pageNum,recipeData) => {
   const baseUrl = "https://www.allrecipes.com";
   const searchUrl = "search/?page";
   const url = `${baseUrl}/${searchUrl}=${pageNum}`;
 
-  let recipeData = [];
   try {
     const response = await fetch(url, { headers });
     const responseBody = await response.text();
-    const root = parse(responseBody);
-    const results = root.querySelectorAll(".searchResult__titleLink");
-    results.map((result) => {
+    const results = parse(responseBody).querySelectorAll(".searchResult__titleLink");
+    const promises = results.map(async(result) => {
       const link = result.attributes["href"];
       if (link.match(/\/recipe\//)) {
-        recipeScraper(link).then((recipe) => recipeData.push(recipeData));
+       recipeData.push(await recipeScraper(link));
+       return recipeData;
       }
     });
-    return recipeData;
+    return Promise.all(promises);
   } catch (error) {
     console.log(error);
   }
 };
 
-const scrapeRecipe = (siteStr, pageIter) => {
-  let recipies = [];
+const scrapeRecipe = async (siteStr, pageIter) => {
+  let recipes = [];
   let scraper;
   if (siteStr === "ar") {
     scraper = getRecipeAr;
   }
   let i = 0;
   for (i in pageIter) {
-    recipies.push = scraper(i);
+    await scraper(i,recipes);
   }
+  saveData(siteStr,recipes);
+};
+
+const saveData = (siteStr, recipeData) => {
+  const data = JSON.stringify(recipeData);
+  fs.writeFile(`data_${siteStr}.json`, data, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
 };
 
 let pageIter;
