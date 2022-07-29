@@ -5,6 +5,7 @@
   "main": "index.js",
   "author": "Foxtrot47",
   "license": "MIT",
+  "type": "module",
   "private": false,
   "dependencies": {
     "node-fetch": "^3.2.9",
