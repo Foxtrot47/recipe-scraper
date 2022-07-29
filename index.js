@@ -17,11 +17,19 @@ const getRecipeAr = async (pageNum) => {
   const searchUrl = "search/?page";
   const url = `${baseUrl}/${searchUrl}=${pageNum}`;
 
+  let recipeData = [];
   try {
     const response = await fetch(url, { headers });
     const responseBody = await response.text();
     const root = parse(responseBody);
     const results = root.querySelectorAll(".searchResult__titleLink");
+    results.map((result) => {
+      const link = result.attributes["href"];
+      if (link.match(/\/recipe\//)) {
+        recipeScraper(link).then((recipe) => recipeData.push(recipeData));
+      }
+    });
+    return recipeData;
   } catch (error) {
     console.log(error);
   }
@@ -35,7 +43,7 @@ const scrapeRecipe = (siteStr, pageIter) => {
   }
   let i = 0;
   for (i in pageIter) {
-    scraper(i);
+    recipies.push = scraper(i);
   }
 };
 
