@@ -11,6 +11,8 @@
     "node-fetch": "^3.2.9",
     "node-html-parser": "^5.3.3",
     "recipe-scraper": "^2.1.1",
+    "workerpool": "^6.2.1",
     "yargs": "^17.5.1"
-  }
+  },
+  "packageManager": "yarn@3.2.2"
 }

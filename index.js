@@ -1,51 +1,39 @@
-import { parse } from "node-html-parser";
-
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 const argv = yargs(hideBin(process.argv)).argv;
-
-import fetch from "node-fetch";
-const headers = {
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.5115.0 Safari/537.36",
-};
-
-import recipeScraper from "recipe-scraper";
 import fs from "fs";
-
-const getRecipeAr = async (pageNum,recipeData) => {
-  const baseUrl = "https://www.allrecipes.com";
-  const searchUrl = "search/?page";
-  const url = `${baseUrl}/${searchUrl}=${pageNum}`;
-
-  try {
-    const response = await fetch(url, { headers });
-    const responseBody = await response.text();
-    const results = parse(responseBody).querySelectorAll(".searchResult__titleLink");
-    const promises = results.map(async(result) => {
-      const link = result.attributes["href"];
-      if (link.match(/\/recipe\//)) {
-       recipeData.push(await recipeScraper(link));
-       return recipeData;
-      }
-    });
-    return Promise.all(promises);
-  } catch (error) {
-    console.log(error);
-  }
-};
+import workerpool from "workerpool";
+const pool = workerpool.pool("./worker.js", { minWorkers: workerpool.cpus });
 
 const scrapeRecipe = async (siteStr, pageIter) => {
-  let recipes = [];
-  let scraper;
+  let recipes = [],
+    scraper,
+    counter = 0;
   if (siteStr === "ar") {
-    scraper = getRecipeAr;
+    scraper = "getRecipeAr";
   }
-  let i = 0;
-  for (i in pageIter) {
-    await scraper(i,recipes);
-  }
-  saveData(siteStr,recipes);
+  const startTime = Date.now();
+  console.log("Starting scraper");
+  pageIter.map((i) => {
+    pool
+      .exec(scraper, [i])
+      .then((res) => {
+        res = res.filter((recipe) => {
+          return recipe !== null;
+        });
+        recipes = recipes.concat(res);
+        if (pool.stats().activeTasks === 0) {
+          const endTime = Date.now();
+          const duration = (endTime - startTime) / 1000;
+          console.log(`Successfully scrapped ${recipes.length}recipes in ${duration}s`);
+          saveData(siteStr, recipes);
+          pool.terminate(true);
+        }
+      })
+      .catch(function (err) {
+        console.error(err);
+      });
+  });
 };
 
 const saveData = (siteStr, recipeData) => {
