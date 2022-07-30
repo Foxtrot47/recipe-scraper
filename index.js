@@ -3,7 +3,9 @@ import { hideBin } from "yargs/helpers";
 const argv = yargs(hideBin(process.argv)).argv;
 import fs from "fs";
 import workerpool from "workerpool";
-const pool = workerpool.pool("./worker.js", { minWorkers: workerpool.cpus });
+const pool = workerpool.pool("./worker.js", {
+  maxWorkers: workerpool.cpus * 2,
+});
 
 const scrapeRecipe = async (siteStr, pageIter) => {
   let recipes = [],
