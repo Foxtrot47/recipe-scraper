@@ -7,13 +7,9 @@ const pool = workerpool.pool("./worker.js", {
   maxWorkers: workerpool.cpus * 2,
 });
 
-const scrapeRecipe = async (siteStr, pageIter) => {
+const scrapeRecipe = async (scraper, siteStr, pageIter) => {
   let recipes = [],
-    scraper,
     counter = 0;
-  if (siteStr === "ar") {
-    scraper = "getRecipeAr";
-  }
   const startTime = Date.now();
   console.log("Starting scraper");
   pageIter.map((i) => {
@@ -27,7 +23,9 @@ const scrapeRecipe = async (siteStr, pageIter) => {
         if (pool.stats().activeTasks === 0) {
           const endTime = Date.now();
           const duration = (endTime - startTime) / 1000;
-          console.log(`Successfully scrapped ${recipes.length}recipes in ${duration}s`);
+          console.log(
+            `Successfully scrapped ${recipes.length}recipes in ${duration}s`
+          );
           saveData(siteStr, recipes);
           pool.terminate(true);
         }
@@ -54,5 +52,9 @@ if (argv.ar) {
     new Array(argv.pages + argv.start),
     (x, i) => i + argv.start
   );
-  scrapeRecipe("ar", pageIter);
+  scrapeRecipe("getRecipeAr", "ar", pageIter);
+} else if (argv.fn) {
+  pool.exec("getSearchLinksFn").then((links) => {
+    scrapeRecipe("scrapeFn", "fn", links);
+  });
 }
