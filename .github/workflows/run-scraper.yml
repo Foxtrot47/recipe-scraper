@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
-      - run: node index.js --ar --start=1 --pages=500
+      - run: node index.js --ar --start=1 --pages=100000
       - name: Upload data
         uses: actions/upload-artifact@v3
         with:
