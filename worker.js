@@ -21,7 +21,10 @@ const getRecipeAr = async (pageNum) => {
     const fetchAll = results.map(async (result) => {
       const link = result.attributes["href"];
       if (!link.match(/\/recipe\//)) return null;
-      let recipe = await recipeScraper(link);
+      let recipe = await recipeScraper(link).catch((error) => {
+        // Disregard all invalid recipes
+        return null;
+      });
       return recipe;
     });
     return await Promise.all(fetchAll);
