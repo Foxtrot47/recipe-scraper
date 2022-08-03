@@ -9,9 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: yarn install
-      - run: node index.js --fn
+      - run: node index.js --bbc --start=1 --pages=418
       - name: Upload data
         uses: actions/upload-artifact@v3
         with:
           name: scrape-data
-          path: data_fn.json
+          path: data_bbc.json
