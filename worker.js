@@ -34,33 +34,43 @@ const getRecipeAr = async (pageNum) => {
 };
 
 // get the base links for the search page
-const getSearchLinksFn = async () => {
+const getFnSearchData = async () => {
+  const indexes = ['123','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','xyz'];
   const url = "https://www.foodnetwork.com/recipes/recipes-a-z/";
-  try {
-    const response = await fetch(url, { headers });
-    const responseBody = await response.text();
-    const results = parse(responseBody).querySelectorAll(
-      "ul.o-IndexPagination__m-List li a"
-    );
-    const Reg = new RegExp(/recipes-a-z\/(\w+)/);
-    const links = results.map((link) => {
-      // Retreive only the page string
-      return Reg.exec(link.attributes["href"])[1];
-    });
-    return links;
-  } catch (error) {
-    console.log(error);
-  }
+  let searchData = [];
+  const fetchData = indexes.map(async (index) => {
+    try {
+      const response = await fetch(`${url}${index}`, { headers });
+      const responseBody = await response.text();
+      const results = parse(responseBody).querySelectorAll(
+        "li.o-Pagination__a-ListItem > a.o-Pagination__a-Button"
+      );
+      // If index only have 1 page return index/1
+      if (!results) searchData.push(`${index}/${1}`);
+      const pages = results[results.length - 2].text;
+      for (let page = 1; page < pages; page++) {
+        searchData.push(`${index}/${page}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    return searchData;
+  });
+  await Promise.all(fetchData);
+  return searchData;
 };
 
 // Loop through links on each search page and retreive recipe data
-const getRecipeFn = async (pageStr, pageNum) => {
+const getRecipeFn = async (searchStr) => {
+  const pageStr = searchStr.split("/")[0];
+  const pageNum = searchStr.split("/")[1];
   const url = `http://www.foodnetwork.com/recipes/recipes-a-z/${pageStr}/p/${pageNum}`;
   try {
     const response = await fetch(url, { headers });
+    if (!response.ok) return null;
     const responseBody = await response.text();
     const results = parse(responseBody).querySelectorAll(
-      "div.o-Capsule__m-Body ul.m-PromoList li a"
+      "div.o-Capsule__m-Body ul.m-PromoList > li > a"
     );
     const fetchAll = results.map(async (result) => {
       let link = result.attributes["href"];
@@ -69,32 +79,19 @@ const getRecipeFn = async (pageStr, pageNum) => {
       link = "https:" + link;
       let recipe = await recipeScraper(link).catch((error) => {
         // Disregard all invalid recipes
-        return null;
+        return;
       });
       return recipe;
     });
     return await Promise.all(fetchAll);
   } catch (error) {
     console.log(error);
+    return;
   }
-};
-// Loop through 
-const scrapeFn = async (pageStr) => {
-  let recipeSet = true,
-    recipeLinks = [],
-    pageNum = 1;
-  while (recipeSet) {
-    recipeSet = await getRecipeFn(pageStr, pageNum);
-    if (recipeSet === null) break;
-    recipeLinks.push(recipeSet);
-    pageNum++;
-  }
-  return recipeSet;
 };
 
 workerpool.worker({
   getRecipeAr: getRecipeAr,
   getRecipeFn: getRecipeFn,
-  getSearchLinksFn: getSearchLinksFn,
-  scrapeFn: scrapeFn,
+  getFnSearchData: getFnSearchData,
 });

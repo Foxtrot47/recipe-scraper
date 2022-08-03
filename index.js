@@ -16,6 +16,7 @@ const scrapeRecipe = async (scraper, siteStr, pageIter) => {
     pool
       .exec(scraper, [i])
       .then((res) => {
+        if (res === undefined || res === null) return;
         res = res.filter((recipe) => {
           return recipe !== null;
         });
@@ -54,7 +55,7 @@ if (argv.ar) {
   );
   scrapeRecipe("getRecipeAr", "ar", pageIter);
 } else if (argv.fn) {
-  pool.exec("getSearchLinksFn").then((links) => {
-    scrapeRecipe("scrapeFn", "fn", links);
+  pool.exec("getFnSearchData").then((arr) => {
+    scrapeRecipe("getRecipeFn", "fn", arr);
   });
 }
