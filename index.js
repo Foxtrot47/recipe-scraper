@@ -59,4 +59,10 @@ if (argv.ar) {
   pool.exec("getFnSearchData").then((arr) => {
     scrapeRecipe("getRecipeFn", "fn", arr);
   });
+} else if (argv.bbc) {
+  pageIter = Array.from(
+    new Array(argv.pages + argv.start),
+    (x, i) => i + argv.start
+  );
+  scrapeRecipe("getRecipesBBC", "bbc", pageIter);
 }

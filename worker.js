@@ -86,7 +86,70 @@ const getRecipeFn = async (searchStr) => {
     return await Promise.all(fetchAll);
   } catch (error) {
     console.log(error);
-    return;
+  }
+};
+
+const getRecipesBBC = async (pageNum) => {
+  try {
+    const url = `https://www.bbcgoodfood.com/search/recipes/page/${pageNum}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) return null;
+    const responseBody = await response.text();
+    const results = parse(responseBody).querySelectorAll(
+      "div.standard-card-new__display-row > h4 > a"
+    );
+    const fetchAll = results.map(async (result) => {
+      let link = result.attributes["href"];
+      if (!link.match(/\/premium\//) && !link.match(/\/recipes\//)) return null;
+      // Add https to front
+      link = "https://www.bbcgoodfood.com" + link;
+      let recipe = await extractRecipeDataBBC(link).catch((error) => {
+        // Disregard all invalid recipes
+        return;
+      });
+      return recipe;
+    });
+    return await Promise.all(fetchAll);
+  } catch (error) {
+    console.log(error);
+  }
+};
+const extractRecipeDataBBC = async (urlPostFix) => {
+  try {
+    const url = `https://www.bbcgoodfood.com/${urlPostFix}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) return;
+    const html = await response.text();
+    const json = JSON.parse(
+      parse(html).querySelector("#__NEXT_DATA__").innerHTML
+    );
+    const recipeData = {
+      _id: parseInt(json.props.pageProps.postId),
+      name: json.props.pageProps.schema.name,
+      description: json.props.pageProps.schema.description,
+      author: json.props.pageProps.schema.author.name,
+      date: json.props.pageProps.schema.datePublished,
+      keywords: json.props.pageProps.schema.keywords
+        ? json.props.pageProps.schema.keywords.split(", ")
+        : [],
+      nutritionalInfo: json.props.pageProps.nutritionalInfo,
+      category: json.props.pageProps.schema.recipeCategory
+        ? json.props.pageProps.schema.recipeCategory.split(", ")
+        : [],
+      ingredients: json.props.pageProps.ingredients,
+      instructions: json.props.pageProps.schema.recipeInstructions,
+      yield: parseInt(json.props.pageProps.schema.recipeYield),
+      image: json.props.pageProps.image,
+      skillLevel: json.props.pageProps.skillLevel,
+      time: {
+        prepTime: json.props.pageProps.cookAndPrepTime.preparationMax / 60,
+        cookTime: json.props.pageProps.cookAndPrepTime.cookingMax / 60,
+        totalTime: json.props.pageProps.cookAndPrepTime.total / 60,
+      },
+    };
+    return recipeData;
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -94,4 +157,5 @@ workerpool.worker({
   getRecipeAr: getRecipeAr,
   getRecipeFn: getRecipeFn,
   getFnSearchData: getFnSearchData,
+  getRecipesBBC: getRecipesBBC,
 });
