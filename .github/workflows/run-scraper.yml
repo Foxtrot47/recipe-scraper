@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   run-scraper:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         node-version: [16.x]
@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
-      - run: node index.js --ar --start=1 --pages=100000
+      - run: node index.js --fns
       - name: Upload data
         uses: actions/upload-artifact@v3
         with:
