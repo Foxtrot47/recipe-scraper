@@ -16,11 +16,12 @@ const scrapeRecipe = async (scraper, siteStr, pageIter) => {
     pool
       .exec(scraper, [i])
       .then((res) => {
-        if (res === undefined || res === null) return;
-        res = res.filter((recipe) => {
-          return recipe !== null;
-        });
-        recipes = recipes.concat(res);
+        if (res !== undefined && res !== null) {
+          res = res.filter((recipe) => {
+            return recipe !== null;
+          });
+          recipes = recipes.concat(res);
+        }
         if (pool.stats().activeTasks === 0) {
           const endTime = Date.now();
           const duration = (endTime - startTime) / 1000;
