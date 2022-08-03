@@ -29,7 +29,7 @@ const getRecipeAr = async (pageNum) => {
     });
     return await Promise.all(fetchAll);
   } catch (error) {
-    console.log(error);
+    return;
   }
 };
 
@@ -52,7 +52,7 @@ const getFnSearchData = async () => {
         searchData.push(`${index}/${page}`);
       }
     } catch (error) {
-      console.log(error);
+      return;
     }
     return searchData;
   });
@@ -85,7 +85,7 @@ const getRecipeFn = async (searchStr) => {
     });
     return await Promise.all(fetchAll);
   } catch (error) {
-    console.log(error);
+    return;
   }
 };
 
@@ -111,7 +111,7 @@ const getRecipesBBC = async (pageNum) => {
     });
     return await Promise.all(fetchAll);
   } catch (error) {
-    console.log(error);
+    return;
   }
 };
 const extractRecipeDataBBC = async (urlPostFix) => {
@@ -149,7 +149,7 @@ const extractRecipeDataBBC = async (urlPostFix) => {
     };
     return recipeData;
   } catch (error) {
-    console.log(error);
+    return;
   }
 };
 
