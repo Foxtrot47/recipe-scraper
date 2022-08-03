@@ -1361,9 +1361,9 @@ ecc-jsbn@~0.1.1:
     safer-buffer "^2.1.0"
 
 electron-to-chromium@^1.4.202:
-  version "1.4.206"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.206.tgz#580ff85b54d7ec0c05f20b1e37ea0becdd7b0ee4"
-  integrity sha512-h+Fadt1gIaQ06JaIiyqPsBjJ08fV5Q7md+V8bUvQW/9OvXfL2LRICTz2EcnnCP7QzrFTS6/27MRV6Bl9Yn97zA==
+  version "1.4.210"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.210.tgz#12611fe874b833a3bf3671438b5893aba7858980"
+  integrity sha512-kSiX4tuyZijV7Cz0MWVmGT8K2siqaOA4Z66K5dCttPPRh0HicOcOAEj1KlC8O8J1aOS/1M8rGofOzksLKaHWcQ==
 
 emoji-regex@^7.0.1:
   version "7.0.3"
@@ -3713,7 +3713,7 @@ realpath-native@^1.1.0:
 
 "recipe-scraper@https://github.com/Foxtrot47/recipedata-scraper":
   version "2.1.1"
-  resolved "https://github.com/Foxtrot47/recipedata-scraper#cc7d07c44d721012cc12befcc96c401179f0d281"
+  resolved "https://github.com/Foxtrot47/recipedata-scraper#cc4ae498337fa40c2736bfc14320dd840b51a7be"
   dependencies:
     cheerio "^1.0.0-rc.3"
     jsonschema "^1.4.0"
