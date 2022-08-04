@@ -120,21 +120,48 @@ const extractRecipeDataBBC = async (urlPostFix) => {
     const response = await fetch(url, { headers });
     if (!response.ok) return;
     const html = await response.text();
+
+    // They have a script section which contains json data of current recipe
     const json = JSON.parse(
       parse(html).querySelector("#__NEXT_DATA__").innerHTML
     );
+
+    // Fetch similiar recipes from bbc's api
+    let url2 =
+      "https://related-content-production.headless.imdserve.com/?contentRequest=";
+    // Data needed for backend
+    const body = {
+      siteKey: "bbcgoodfood",
+      postId: parseInt(json.props.pageProps.postId),
+      searchTerm: json.props.pageProps.schema.name,
+      pinned: [],
+      widgetLimit: 8,
+      categories: [],
+      type: ["sxs-recipe"],
+      showCardLabels: false,
+      v5enabled: false,
+    };
+    url2 += encodeURIComponent(JSON.stringify(body));
+    const apiResponse = await fetch(url2);
+    const similiarRecipes = await apiResponse.json();
+
     const recipeData = {
       _id: parseInt(json.props.pageProps.postId),
       name: json.props.pageProps.schema.name,
       description: json.props.pageProps.schema.description,
       author: json.props.pageProps.schema.author.name,
       date: json.props.pageProps.schema.datePublished,
+      rating: json.props.pageProps.userRatings,
       keywords: json.props.pageProps.schema.keywords
         ? json.props.pageProps.schema.keywords.split(", ")
         : [],
       nutritionalInfo: json.props.pageProps.nutritionalInfo,
       category: json.props.pageProps.schema.recipeCategory
         ? json.props.pageProps.schema.recipeCategory.split(", ")
+        : [],
+      diet: json.props.pageProps.diet ? json.props.pageProps.diet : [],
+      cuisine: json.props.pageProps.schema.recipeCuisine
+        ? json.props.pageProps.schema.recipeCuisine
         : [],
       ingredients: json.props.pageProps.ingredients,
       instructions: json.props.pageProps.schema.recipeInstructions,
@@ -146,6 +173,7 @@ const extractRecipeDataBBC = async (urlPostFix) => {
         cookTime: json.props.pageProps.cookAndPrepTime.cookingMax / 60,
         totalTime: json.props.pageProps.cookAndPrepTime.total / 60,
       },
+      similiarRecipes,
     };
     return recipeData;
   } catch (error) {
