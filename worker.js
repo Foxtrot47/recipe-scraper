@@ -150,6 +150,7 @@ const extractRecipeDataBBC = async (urlPostFix) => {
       name: json.props.pageProps.schema.name,
       description: json.props.pageProps.schema.description,
       author: json.props.pageProps.schema.author.name,
+      slug: json.props.pageProps.slug,
       date: json.props.pageProps.schema.datePublished,
       rating: json.props.pageProps.userRatings,
       keywords: json.props.pageProps.schema.keywords
