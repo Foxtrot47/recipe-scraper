@@ -7,14 +7,13 @@ const pool = workerpool.pool("./worker.js", {
   maxWorkers: workerpool.cpus * 2,
 });
 
-const scrapeRecipe = async (scraper, siteStr, pageIter) => {
-  let recipes = [],
-    counter = 0;
+const scrapeRecipe = async (pageIter) => {
+  let recipes = [];
   const startTime = Date.now();
   console.log("Starting scraper");
   pageIter.map((i) => {
     pool
-      .exec(scraper, [i])
+      .exec(getRecipesBBC, [i])
       .then((res) => {
         if (res !== undefined && res !== null) {
           res = res.filter((recipe) => {
@@ -38,9 +37,9 @@ const scrapeRecipe = async (scraper, siteStr, pageIter) => {
   });
 };
 
-const saveData = (siteStr, recipeData) => {
+const saveData = (recipeData) => {
   const data = JSON.stringify(recipeData);
-  fs.writeFile(`data_${siteStr}.json`, data, (err) => {
+  fs.writeFile(data_bbc.json, data, (err) => {
     if (err) {
       console.error(err);
     }
@@ -49,20 +48,18 @@ const saveData = (siteStr, recipeData) => {
 
 let pageIter;
 
-if (argv.ar) {
+if (!argv.pages) {
+  console.log("--pages argument is required")
+  process.exit(1);
+} else if (!argv.start) {
+  pageIter = Array.from(
+    new Array(argv.pages),
+    (x, i) => i + argv.start
+  );
+} else {
   pageIter = Array.from(
     new Array(argv.pages + argv.start),
     (x, i) => i + argv.start
   );
-  scrapeRecipe("getRecipeAr", "ar", pageIter);
-} else if (argv.fn) {
-  pool.exec("getFnSearchData").then((arr) => {
-    scrapeRecipe("getRecipeFn", "fn", arr);
-  });
-} else if (argv.bbc) {
-  pageIter = Array.from(
-    new Array(argv.pages + argv.start),
-    (x, i) => i + argv.start
-  );
-  scrapeRecipe("getRecipesBBC", "bbc", pageIter);
+  scrapeRecipe(pageIter);
 }

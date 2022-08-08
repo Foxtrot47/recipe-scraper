@@ -8,12 +8,8 @@
   "type": "module",
   "private": false,
   "dependencies": {
-    "got": "^12.3.0",
-    "jsom": "^1.0.0",
     "node-fetch": "^3.2.9",
     "node-html-parser": "^5.3.3",
-    "node-notifier": "^10.0.1",
-    "recipe-scraper": "https://github.com/Foxtrot47/recipedata-scraper",
     "workerpool": "^6.2.1",
     "yargs": "^17.5.1"
   },
