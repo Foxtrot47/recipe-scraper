@@ -13,7 +13,7 @@ const scrapeRecipe = async (pageIter) => {
   console.log("Starting scraper");
   pageIter.map((i) => {
     pool
-      .exec(getRecipesBBC, [i])
+      .exec('getRecipesBBC', [i])
       .then((res) => {
         if (res !== undefined && res !== null) {
           res = res.filter((recipe) => {
