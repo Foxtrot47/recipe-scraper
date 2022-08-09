@@ -27,7 +27,7 @@ const scrapeRecipe = async (pageIter) => {
           console.log(
             `Successfully scrapped ${recipes.length}recipes in ${duration}s`
           );
-          saveData(siteStr, recipes);
+          saveData(recipes);
           pool.terminate(true);
         }
       })
@@ -39,7 +39,7 @@ const scrapeRecipe = async (pageIter) => {
 
 const saveData = (recipeData) => {
   const data = JSON.stringify(recipeData);
-  fs.writeFile(data_bbc.json, data, (err) => {
+  fs.writeFile('data_bbc.json', data, (err) => {
     if (err) {
       console.error(err);
     }
@@ -61,5 +61,5 @@ if (!argv.pages) {
     new Array(argv.pages + argv.start),
     (x, i) => i + argv.start
   );
-  scrapeRecipe(pageIter);
 }
+scrapeRecipe(pageIter);
