@@ -10,7 +10,10 @@ const getRecipesBBC = async (pageNum) => {
   try {
     const url = `https://www.bbcgoodfood.com/search/recipes/page/${pageNum}`;
     const response = await fetch(url, { headers });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.log(`Failed to fetch ${url}`);
+      return;
+    }
     const responseBody = await response.text();
     const results = parse(responseBody).querySelectorAll(
       "div.standard-card-new__display-row > h4 > a"
@@ -32,10 +35,27 @@ const getRecipesBBC = async (pageNum) => {
   }
 };
 const extractRecipeDataBBC = async (urlPostFix) => {
+  let failedUrls = [];
   try {
     const url = `https://www.bbcgoodfood.com/${urlPostFix}`;
-    const response = await fetch(url, { headers });
-    if (!response.ok) return;
+    let response = await fetch(url, { headers });
+
+    if (!response.ok) {
+      console.log(`Failed to fetch ${url}`);
+      // Retry timed out requests 4 times
+      if (response.status === 408) {
+        for (let i = 0; i < 4; i++) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          response = await fetch(url, { headers });
+          if (response.ok) break;
+        }
+      } else return;
+    }
+    // If all retrys failed just quit
+    if (!response.ok) {
+      console.log(`Failed to fetch ${url}`);
+      return;
+    }
     const html = await response.text();
 
     // They have a script section which contains json data of current recipe
